@@ -30,9 +30,10 @@ jobs:
 
       - name: Test backend
         run: |
-          pip install -r app/requirements.txt
+          cd app
+          pip install -r requirements.txt
           pip install pytest httpx
-          cd app && pytest tests/ -v
+          pytest tests/ -v
 
       - name: Build backend image
         run: |
