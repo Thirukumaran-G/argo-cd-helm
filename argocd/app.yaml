@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-demo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Thirukumaran-G/argo-cd-helm.git
+    targetRevision: main
+    path: helm/gitops-demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitops-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: trueapiVersion: v1
+kind: Secret
+metadata:
+  name: private-repo-secret
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: https://github.com/Thirukumaran-G/argo-cd-helm.git
+  username: Thirukumaran-G
+  password: YOUR_GITHUB_PAT_TOKEN        # ← only this needs to be filled
+    syncOptions:
+      - CreateNamespace=true
