@@ -32,7 +32,7 @@ jobs:
         run: |
           pip install -r app/requirements.txt
           pip install pytest httpx
-          if [ -d "app/tests" ]; then pytest app/tests/ -v; fi
+          cd app && pytest tests/ -v
 
       - name: Build backend image
         run: |
