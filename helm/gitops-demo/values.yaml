@@ -2,9 +2,9 @@ replicaCount: 1
 
 backend:
   image:
-    repository: gitops-demo-backend
+    repository: ghcr.io/thirukumaran-g/argo-cd-helm-backend
     tag: "latest"
-    pullPolicy: Never        # Never pull — image loaded directly into Minikube
+    pullPolicy: Always          # Always pull from GHCR
   port: 8000
   resources:
     limits:
@@ -13,9 +13,9 @@ backend:
 
 frontend:
   image:
-    repository: gitops-demo-frontend
+    repository: ghcr.io/thirukumaran-g/argo-cd-helm-frontend
     tag: "latest"
-    pullPolicy: Never        # Never pull — image loaded directly into Minikube
+    pullPolicy: Always          # Always pull from GHCR
   port: 80
   resources:
     limits:

@@ -1,16 +1,22 @@
-name: CI/CD — Build Artifact + Update Helm
+name: CI/CD — Build, Push GHCR, Update Helm
 
 on:
   push:
     branches:
       - main
 
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/thirukumaran-g/argo-cd-helm-backend
+  FRONTEND_IMAGE: ghcr.io/thirukumaran-g/argo-cd-helm-frontend
+
 jobs:
   ci:
-    name: Build & Save Docker Images
+    name: Build & Push to GHCR
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
     outputs:
       image_tag: ${{ steps.tag.outputs.sha }}
 
@@ -28,33 +34,37 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Build backend image
+      - name: Test backend
         run: |
-          docker build \
-            -t gitops-demo-backend:${{ steps.tag.outputs.sha }} \
-            ./app
+          cd app
+          pip install -r requirements.txt
+          pip install pytest httpx
+          pytest tests/ -v
 
-      - name: Build frontend image
-        run: |
-          docker build \
-            -t gitops-demo-frontend:${{ steps.tag.outputs.sha }} \
-            ./frontend
-
-      - name: Save images as tar
-        run: |
-          mkdir -p artifacts
-          docker save gitops-demo-backend:${{ steps.tag.outputs.sha }} \
-            | gzip > artifacts/backend.tar.gz
-          docker save gitops-demo-frontend:${{ steps.tag.outputs.sha }} \
-            | gzip > artifacts/frontend.tar.gz
-          echo "${{ steps.tag.outputs.sha }}" > artifacts/image_tag.txt
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          name: docker-images-${{ steps.tag.outputs.sha }}
-          path: artifacts/
-          retention-days: 7
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:${{ steps.tag.outputs.sha }}
+            ${{ env.BACKEND_IMAGE }}:latest
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE }}:${{ steps.tag.outputs.sha }}
+            ${{ env.FRONTEND_IMAGE }}:latest
 
   cd:
     name: Update Helm values.yaml

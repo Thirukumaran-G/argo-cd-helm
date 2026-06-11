@@ -15,17 +15,6 @@ spec:
   syncPolicy:
     automated:
       prune: true
-      selfHeal: trueapiVersion: v1
-kind: Secret
-metadata:
-  name: private-repo-secret
-  namespace: argocd
-  labels:
-    argocd.argoproj.io/secret-type: repository
-stringData:
-  type: git
-  url: https://github.com/Thirukumaran-G/argo-cd-helm.git
-  username: Thirukumaran-G
-  password: YOUR_GITHUB_PAT_TOKEN        # ← only this needs to be filled
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
