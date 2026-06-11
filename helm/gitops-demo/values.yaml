@@ -1,29 +1,25 @@
 replicaCount: 1
-
 backend:
   image:
     repository: ghcr.io/thirukumaran-g/argo-cd-helm-backend
-    tag: "6142642"
-    pullPolicy: Always          # Always pull from GHCR
+    tag: "e623aaf"
+    pullPolicy: Always # Always pull from GHCR
   port: 8000
   resources:
     limits:
       cpu: 200m
       memory: 256Mi
-
 frontend:
   image:
     repository: ghcr.io/thirukumaran-g/argo-cd-helm-frontend
-    tag: "6142642"
-    pullPolicy: Always          # Always pull from GHCR
+    tag: "e623aaf"
+    pullPolicy: Always # Always pull from GHCR
   port: 80
   resources:
     limits:
       cpu: 100m
       memory: 128Mi
-
 ingress:
   enabled: true
   host: gitops-demo.local
-
 namespace: gitops-demo
